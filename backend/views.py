@@ -9,6 +9,7 @@ import pandas
 import ntplib
 
 from ta.trend import ADXIndicator
+from ta.momentum import RSIIndicator
 import calendar
 
 Iq=IQ_Option("kershingf@gmail.com","T3.md5.pp7.3.4.PI")
@@ -49,13 +50,17 @@ class SignalTracker:
         adx_pos = df.iloc[-1].adx_pos
         adx_neg = df.iloc[-1].adx_neg
 
+        current_rsi = df.iloc[-1].rsi
+        last_rsi = df.iloc[-2].rsi
+
         bullish_conditions = [
             xs_ma > medium_ma,
             medium_ma > long_ma,
             price_close > medium_ma,
             price_close < price_open,
             adx_pos > 20,
-            adx_neg < 20
+            adx_neg < 20,
+            (current_rsi >= 70 or last_rsi >= 70)
         ]
 
         bearish_conditions = [
@@ -64,7 +69,8 @@ class SignalTracker:
             price_close < medium_ma,
             price_close > price_open,
             adx_pos < 20,
-            adx_neg > 20
+            adx_neg > 20,
+            (current_rsi <= 30 or last_rsi <= 30)
         ]
 
         if all(bullish_conditions):
@@ -92,10 +98,13 @@ class SignalTracker:
             indicators.ema(period=30, column_name='long_ma', apply_to='Close')
 
             adx = ADXIndicator(data['High'], data['Low'], data['Close'], 14, fillna=True)
+            rsi = RSIIndicator(data['Close'], 14, fillna=True)
+
 
             df = indicators.df
             df['adx_pos'] = adx.adx_pos()
             df['adx_neg'] = adx.adx_neg()
+            df['rsi'] = rsi.rsi()
 
             signal = self.signal(df)
 
