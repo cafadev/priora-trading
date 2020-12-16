@@ -12,7 +12,7 @@ from ta.trend import ADXIndicator
 from ta.momentum import RSIIndicator
 import calendar
 
-Iq=IQ_Option("kershingf@gmail.com","T3.md5.pp7.3.4.PI")
+Iq=IQ_Option()
 Iq.connect()
 
 
